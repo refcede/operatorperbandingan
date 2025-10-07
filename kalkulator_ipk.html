@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard IPK Dinamis</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --primary-hover: #0056b3;
+            --background-color: #f4f7fc;
+            --card-background: #ffffff;
+            --text-color: #333;
+            --subtle-text-color: #6c757d;
+            --border-color: #dee2e6;
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+            --math-icon-color: rgba(0, 123, 255, 0.1);
+            --font-family: 'Poppins', sans-serif;
+        }
+
+        body.dark-mode {
+            --primary-color: #4dabf7;
+            --primary-hover: #1e88e5;
+            --background-color: #121212;
+            --card-background: #1e1e1e;
+            --text-color: #e0e0e0;
+            --subtle-text-color: #a0a0a0;
+            --border-color: #3a3a3a;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+            --math-icon-color: rgba(77, 171, 247, 0.08);
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            font-family: var(--font-family);
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .background-animation {
+            position: fixed; top: 0; left: 0; width: 100%;
+            height: 100%; overflow: hidden; z-index: -1;
+        }
+
+        .math-icon {
+            position: absolute; color: var(--math-icon-color);
+            font-size: 2rem; user-select: none;
+            animation: floatUp 25s linear infinite; bottom: -50px;
+        }
+        
+        .container {
+            max-width: 1200px; margin: 0 auto;
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        .main-layout {
+            display: grid; grid-template-columns: 1.2fr 1fr;
+            gap: 25px; align-items: flex-start;
+        }
+
+        .calculator-card, .history-card, #ipk-kumulatif-box {
+            background: var(--card-background);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            transition: background-color 0.3s, box-shadow 0.3s, transform 0.3s ease;
+        }
+        
+        .calculator-card:hover, .history-card:hover, #ipk-kumulatif-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        body.dark-mode .calculator-card:hover, body.dark-mode .history-card:hover, body.dark-mode #ipk-kumulatif-box:hover {
+             box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        }
+
+        .calculator-card, .history-card { padding: 25px; height: 100%; }
+
+        h2 {
+            font-size: 1.5em; margin: 0 0 20px 0;
+            font-weight: 600; color: var(--primary-color);
+        }
+
+        .form-group { margin-bottom: 12px; display: flex; flex-direction: column; }
+        .form-group label { font-size: 0.85em; margin-bottom: 5px; color: var(--subtle-text-color); font-weight: 500; }
+
+        input, select {
+            width: 100%; padding: 10px; font-size: 0.95em;
+            border: 1px solid var(--border-color); border-radius: 8px;
+            background-color: var(--background-color); color: var(--text-color);
+            transition: all 0.3s; font-family: inherit;
+        }
+
+        input:focus, select:focus {
+            outline: none; border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 20%, transparent);
+        }
+
+        button, .button {
+            padding: 10px 18px; font-size: 0.95em; border-radius: 8px;
+            border: none; cursor: pointer; transition: all 0.3s ease;
+            font-family: inherit; font-weight: 500;
+        }
+        
+        #submit-btn { background-color: var(--primary-color); color: #fff; }
+        #submit-btn:hover { background-color: var(--primary-hover); transform: translateY(-2px); }
+
+        .matkul-input-group {
+            padding: 15px; margin-bottom: 10px; border-radius: 8px;
+            background: color-mix(in srgb, var(--background-color) 70%, transparent);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+
+        .matkul-input-group > div:first-child {
+            flex-grow: 1;
+        }
+        
+        .remove-matkul-btn {
+            background-color: #f44336; color: white; border: none;
+            width: 35px; height: 35px; border-radius: 50%;
+            cursor: pointer; font-size: 0.9em; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .remove-matkul-btn:hover {
+            background-color: #d32f2f; transform: scale(1.1);
+        }
+        body.dark-mode .remove-matkul-btn { background-color: #ef5350; }
+        body.dark-mode .remove-matkul-btn:hover { background-color: #e53935; }
+
+        .nilai-inputs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 10px; }
+        #matkul-container { max-height: 320px; overflow-y: auto; padding: 5px 10px 5px 5px; }
+        #riwayat-container { max-height: 450px; overflow-y: auto; padding-right: 10px; }
+        #matkul-container::-webkit-scrollbar, #riwayat-container::-webkit-scrollbar { width: 8px; }
+        #matkul-container::-webkit-scrollbar-track, #riwayat-container::-webkit-scrollbar-track { background: transparent; }
+        #matkul-container::-webkit-scrollbar-thumb, #riwayat-container::-webkit-scrollbar-thumb { background-color: var(--primary-color); border-radius: 10px; border: 2px solid var(--card-background); }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s; }
+        .modal-overlay.show { display: flex; opacity: 1; }
+        .modal-content { background: var(--card-background); padding: 25px; border-radius: 12px; width: min(500px, 90%); transform: scale(0.95); transition: transform 0.3s; }
+        .modal-overlay.show .modal-content { transform: scale(1); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .close-btn { background: none; border: none; font-size: 1.5em; cursor: pointer; color: var(--text-color); }
+        .accordion-item details { margin-bottom: 10px; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; }
+        .accordion-item summary { padding: 12px 15px; cursor: pointer; background-color: color-mix(in srgb, var(--background-color) 70%, transparent); font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+        .accordion-item details[open] summary { background-color: color-mix(in srgb, var(--primary-color) 15%, transparent); }
+        .accordion-content { padding: 15px; font-size: 0.9em; }
+        .accordion-content table { width: 100%; border-collapse: collapse; text-align: left; }
+        .accordion-content th, .accordion-content td { padding: 8px; border-bottom: 1px solid var(--border-color); }
+        #ipk-kumulatif-box { padding: 20px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; font-weight: 500; }
+        #ipk-kumulatif-display { font-size: 2em; font-weight: 700; color: var(--primary-color); }
+        .back-link { text-decoration: none; color: var(--primary-color); font-weight: 500; }
+        @media (max-width: 992px) { .main-layout { grid-template-columns: 1fr; } .history-column { margin-top: 25px; } }
+        @media (max-width: 600px) { .nilai-inputs { grid-template-columns: 1fr 1fr; } .matkul-input-group { flex-direction: column; } .remove-matkul-btn { margin: 10px 0 0 0; align-self: flex-start; } body { padding: 15px; } }
+
+        #theme-toggle {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: var(--card-background); box-shadow: var(--shadow);
+            display: flex; justify-content: center; align-items: center;
+            overflow: hidden; position: relative; font-size: 1.2em;
+        }
+        #theme-toggle .fas {
+            position: absolute; transition: transform 0.4s ease-out, opacity 0.4s ease-out;
+            color: var(--primary-color);
+        }
+        #theme-toggle .fa-sun { transform: translateY(0) rotate(0deg); opacity: 1; }
+        #theme-toggle .fa-moon { transform: translateY(30px) rotate(180deg); opacity: 0; }
+        body.dark-mode #theme-toggle .fa-sun { transform: translateY(-30px) rotate(-180deg); opacity: 0; }
+        body.dark-mode #theme-toggle .fa-moon { transform: translateY(0) rotate(0deg); opacity: 1; }
+    </style>
+</head>
+<body>
+
+    <div class="background-animation"></div>
+
+    <div id="settings-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Pengaturan Bobot & Skala</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div id="settings-form">
+                <div class="bobot-grid" style="grid-template-columns: 1fr 1fr;"><div class="form-group"><label>Tugas (%)</label><input type="number" id="bobot_tugas" value="20" required></div><div class="form-group"><label>UTS (%)</label><input type="number" id="bobot_uts" value="30" required></div><div class="form-group"><label>UAS (%)</label><input type="number" id="bobot_uas" value="40" required></div><div class="form-group"><label>Hadir (%)</label><input type="number" id="bobot_hadir" value="10" required></div></div>
+                <div class="form-group" style="margin-top:10px;"><label for="total_pertemuan">Total Pertemuan per Matkul</label><input type="number" id="total_pertemuan" value="14" required></div>
+                <button id="save-settings-btn" style="width:100%; margin-top:15px; background-color: var(--primary-color); color: white;">Simpan Pengaturan</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <a href="index.html" class="back-link" style="margin:0;">&larr; Halaman Utama</a>
+            <button id="theme-toggle" class="theme-toggle" title="Ganti Tema">
+                <i class="fas fa-sun"></i>
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+        <div class="main-layout">
+            <div class="form-column">
+                <div class="calculator-card">
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 15px;">
+                        <h2>Kalkulator Nilai</h2>
+                        <button id="open-settings-btn" title="Atur Bobot Penilaian" style="background:none; border:none; font-size:1.5em; color:var(--primary-color); cursor:pointer;">
+                            <i class="fas fa-cog"></i>
+                        </button>
+                    </div>
+                    <form id="form-ipk">
+                        <div style="display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: end;">
+                            <div class="form-group" style="margin:0;">
+                                <label for="semester-select">Pilih Semester</label>
+                                <select id="semester-select"><option value="-1">--- Buat Semester Baru ---</option></select>
+                            </div>
+                           <input type="text" id="nama_semester" placeholder="Nama Semester (Cth: Ganjil 2024)" required style="display: block;">
+                        </div>
+                        <input type="hidden" id="editing-index" value="-1">
+                        <hr style="border-color: var(--border-color); border-style: dashed; margin: 20px 0;">
+                        
+                        <div id="matkul-container">
+                            </div>
+
+                        <div id="matkul-template" style="display: none;">
+                             <div class="matkul-input-group">
+                                <div>
+                                    <div class="form-group"><label>Nama Mata Kuliah</label><input type="text" class="matkul-nama" required></div>
+                                    <div class="nilai-inputs">
+                                        <div class="form-group"><label>SKS</label><input type="number" class="matkul-sks" min="1" required></div>
+                                        <div class="form-group"><label>Tugas</label><input type="number" class="matkul-tugas" min="0" max="100" required></div>
+                                        <div class="form-group"><label>UTS</label><input type="number" class="matkul-uts" min="0" max="100" required></div>
+                                        <div class="form-group"><label>UAS</label><input type="number" class="matkul-uas" min="0" max="100" required></div>
+                                        <div class="form-group"><label>Hadir</label><input type="number" class="matkul-hadir" min="0" required></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div style="display:flex; gap:10px; margin-top:15px;">
+                            <button type="button" id="add-matkul-btn"><i class="fas fa-plus"></i> Tambah Matkul</button>
+                            <button type="submit" id="submit-btn" style="flex-grow:1;"><i class="fas fa-save"></i> Simpan Semester</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="history-column">
+                <div id="ipk-kumulatif-box" style="display: none;">
+                    <span>Indeks Prestasi Kumulatif (IPK)</span>
+                    <strong id="ipk-kumulatif-display">0.00</strong>
+                </div>
+                <div class="history-card">
+                    <h2 style="margin-top:0;">Riwayat Semester</h2>
+                    <div id="riwayat-container" class="accordion-item">
+                         <p id="riwayat-kosong" style="color: var(--subtle-text-color);">Belum ada riwayat perhitungan.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const themeToggle = document.getElementById('theme-toggle');
+        const body = document.body;
+        const backgroundContainer = document.querySelector('.background-animation');
+        const settingsModal = document.getElementById('settings-modal');
+        const openSettingsBtn = document.getElementById('open-settings-btn');
+        const closeSettingsBtn = settingsModal.querySelector('.close-btn');
+        const saveSettingsBtn = document.getElementById('save-settings-btn');
+        const formIpk = document.getElementById('form-ipk');
+        const matkulContainer = document.getElementById('matkul-container');
+        const addMatkulBtn = document.getElementById('add-matkul-btn');
+        const semesterSelect = document.getElementById('semester-select');
+        const namaSemesterInput = document.getElementById('nama_semester');
+        const editingIndexInput = document.getElementById('editing-index');
+        const riwayatContainer = document.getElementById('riwayat-container');
+        const ipkBox = document.getElementById('ipk-kumulatif-box');
+        const ipkDisplay = document.getElementById('ipk-kumulatif-display');
+        const riwayatKosongMsg = document.getElementById('riwayat-kosong');
+        
+        let riwayatData = [];
+        let settings = {};
+        let matkulTemplateHTML = '';
+
+        const init = () => {
+            loadTheme();
+            createMathBackground();
+            loadSettings();
+            riwayatData = JSON.parse(localStorage.getItem('riwayatIpk')) || [];
+            
+            const matkulTemplateElement = document.getElementById('matkul-template');
+            if (matkulTemplateElement) {
+                matkulTemplateHTML = matkulTemplateElement.innerHTML;
+            }
+
+            if (matkulContainer.children.length === 0) {
+                 addMatkulField();
+            }
+            renderRiwayat();
+            setupEventListeners();
+        };
+
+        const setupEventListeners = () => {
+            themeToggle.addEventListener('click', toggleTheme);
+            openSettingsBtn.addEventListener('click', () => settingsModal.classList.add('show'));
+            closeSettingsBtn.addEventListener('click', () => settingsModal.classList.remove('show'));
+            settingsModal.addEventListener('click', (e) => {
+                if (e.target === settingsModal) settingsModal.classList.remove('show');
+            });
+            saveSettingsBtn.addEventListener('click', saveSettings);
+            addMatkulBtn.addEventListener('click', () => addMatkulField());
+            formIpk.addEventListener('submit', handleFormSubmit);
+            semesterSelect.addEventListener('change', loadSemesterToForm);
+        };
+
+        const addMatkulField = (matkulData = null) => {
+            if (!matkulTemplateHTML) return;
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = matkulTemplateHTML.trim();
+            const newField = tempDiv.firstChild;
+
+            if(matkulData) {
+                newField.querySelector('.matkul-nama').value = matkulData.nama;
+                newField.querySelector('.matkul-sks').value = matkulData.sks;
+                newField.querySelector('.matkul-tugas').value = matkulData.nilai.tugas;
+                newField.querySelector('.matkul-uts').value = matkulData.nilai.uts;
+                newField.querySelector('.matkul-uas').value = matkulData.nilai.uas;
+                newField.querySelector('.matkul-hadir').value = matkulData.nilai.hadir;
+            }
+
+            if (matkulContainer.children.length >= 0) { // Tombol hapus akan selalu ada
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                removeBtn.className = 'remove-matkul-btn';
+                removeBtn.title = 'Hapus Mata Kuliah';
+                removeBtn.onclick = () => {
+                    // Mencegah menghapus field terakhir
+                    if (matkulContainer.children.length > 1) {
+                        newField.remove();
+                    } else {
+                        alert('Setidaknya harus ada satu mata kuliah.');
+                    }
+                };
+                newField.appendChild(removeBtn);
+            }
+            matkulContainer.appendChild(newField);
+        };
+        
+        const toggleTheme = () => {
+            body.classList.toggle('dark-mode');
+            localStorage.setItem('theme', body.classList.contains('dark-mode') ? 'dark' : 'light');
+        };
+
+        const loadTheme = () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            if (savedTheme === 'dark') {
+                body.classList.add('dark-mode');
+            }
+        };
+
+        const createMathBackground = () => {
+            if(backgroundContainer.children.length > 0) return;
+            const icons = ['+', '-', '×', '÷', '=', '√', 'π', 'Σ', '∫', 'ƒ', '%'];
+            const iconCount = 30;
+            for (let i = 0; i < iconCount; i++) {
+                const icon = document.createElement('span');
+                icon.classList.add('math-icon');
+                icon.textContent = icons[Math.floor(Math.random() * icons.length)];
+                icon.style.left = `${Math.random() * 100}vw`;
+                icon.style.fontSize = `${1 + Math.random() * 2}rem`;
+                icon.style.animationDuration = `${15 + Math.random() * 20}s`;
+                icon.style.animationDelay = `${Math.random() * 15}s`;
+                backgroundContainer.appendChild(icon);
+            }
+        };
+
+        const loadSettings = () => {
+            const savedSettings = JSON.parse(localStorage.getItem('ipkSettings'));
+            settings = savedSettings || {
+                tugas: 20, uts: 30, uas: 40, hadir: 10, totalPertemuan: 14
+            };
+            document.getElementById('bobot_tugas').value = settings.tugas;
+            document.getElementById('bobot_uts').value = settings.uts;
+            document.getElementById('bobot_uas').value = settings.uas;
+            document.getElementById('bobot_hadir').value = settings.hadir;
+            document.getElementById('total_pertemuan').value = settings.totalPertemuan;
+        };
+
+        const saveSettings = () => {
+            const tugas = parseFloat(document.getElementById('bobot_tugas').value) || 0;
+            const uts = parseFloat(document.getElementById('bobot_uts').value) || 0;
+            const uas = parseFloat(document.getElementById('bobot_uas').value) || 0;
+            const hadir = parseFloat(document.getElementById('bobot_hadir').value) || 0;
+            const totalBobot = tugas + uts + uas + hadir;
+            if (totalBobot !== 100) {
+                alert(`Total bobot harus 100%, saat ini totalnya ${totalBobot}%.`);
+                return;
+            }
+            settings = {
+                tugas, uts, uas, hadir,
+                totalPertemuan: parseInt(document.getElementById('total_pertemuan').value) || 14
+            };
+            localStorage.setItem('ipkSettings', JSON.stringify(settings));
+            alert('Pengaturan berhasil disimpan!');
+            settingsModal.classList.remove('show');
+        };
+        
+        const handleFormSubmit = (e) => {
+            e.preventDefault();
+            const semesterNama = namaSemesterInput.value.trim();
+            if (!semesterNama) { alert('Nama semester tidak boleh kosong.'); return; }
+            const matkulElements = matkulContainer.querySelectorAll('.matkul-input-group');
+            const semesterMatkul = [];
+            let totalSks = 0; let totalBobotNilai = 0;
+            let isValid = true;
+            matkulElements.forEach(el => {
+                const nama = el.querySelector('.matkul-nama').value;
+                const sks = parseInt(el.querySelector('.matkul-sks').value);
+                const tugas = parseFloat(el.querySelector('.matkul-tugas').value);
+                const uts = parseFloat(el.querySelector('.matkul-uts').value);
+                const uas = parseFloat(el.querySelector('.matkul-uas').value);
+                const hadir = parseInt(el.querySelector('.matkul-hadir').value);
+                if (!nama || isNaN(sks) || isNaN(tugas) || isNaN(uts) || isNaN(uas) || isNaN(hadir)) {
+                    isValid = false;
+                    return;
+                }
+                const nilaiHadir = (hadir / settings.totalPertemuan) * 100;
+                const nilaiAkhirAngka = (tugas * settings.tugas/100) + (uts * settings.uts/100) + (uas * settings.uas/100) + (nilaiHadir * settings.hadir/100);
+                const { huruf, bobot } = convertNilaiToBobot(nilaiAkhirAngka);
+                semesterMatkul.push({ nama, sks, nilai: { tugas, uts, uas, hadir }, nilaiAkhirAngka: nilaiAkhirAngka.toFixed(2), huruf, bobot });
+                totalSks += sks; totalBobotNilai += sks * bobot;
+            });
+            if (!isValid) { alert('Pastikan semua field mata kuliah terisi dengan benar.'); return; }
+            if (semesterMatkul.length === 0) { alert('Silakan isi data mata kuliah terlebih dahulu.'); return; }
+            const ips = totalSks > 0 ? (totalBobotNilai / totalSks) : 0;
+            const semesterObj = { nama: semesterNama, matkul: semesterMatkul, ips: ips.toFixed(2), totalSks: totalSks };
+            const editingIndex = parseInt(editingIndexInput.value);
+            if (editingIndex > -1) { riwayatData[editingIndex] = semesterObj; } else { riwayatData.push(semesterObj); }
+            localStorage.setItem('riwayatIpk', JSON.stringify(riwayatData));
+            renderRiwayat(); resetForm();
+            alert(`Semester ${semesterNama} berhasil disimpan dengan IPS ${ips.toFixed(2)}`);
+        };
+
+        const convertNilaiToBobot = (nilai) => {
+            if (nilai >= 85) return { huruf: 'A', bobot: 4.0 }; if (nilai >= 80) return { huruf: 'A-', bobot: 3.7 };
+            if (nilai >= 75) return { huruf: 'B+', bobot: 3.3 }; if (nilai >= 70) return { huruf: 'B', bobot: 3.0 };
+            if (nilai >= 65) return { huruf: 'B-', bobot: 2.7 }; if (nilai >= 60) return { huruf: 'C+', bobot: 2.3 };
+            if (nilai >= 55) return { huruf: 'C', bobot: 2.0 }; if (nilai >= 40) return { huruf: 'D', bobot: 1.0 };
+            return { huruf: 'E', bobot: 0.0 };
+        };
+
+        const resetForm = () => {
+            formIpk.reset(); matkulContainer.innerHTML = ''; addMatkulField();
+            editingIndexInput.value = -1; semesterSelect.value = -1;
+            namaSemesterInput.style.display = 'block';
+        };
+
+        const renderRiwayat = () => {
+            riwayatContainer.innerHTML = ''; semesterSelect.innerHTML = '<option value="-1">--- Buat Semester Baru ---</option>';
+            if (riwayatData.length === 0) { 
+                if(!document.getElementById('riwayat-kosong')) riwayatContainer.appendChild(riwayatKosongMsg);
+                ipkBox.style.display = 'none'; 
+                return; 
+            }
+            if(document.getElementById('riwayat-kosong')) riwayatKosongMsg.remove(); 
+            ipkBox.style.display = 'flex';
+            
+            let totalBobotKumulatif = 0; let totalSksKumulatif = 0;
+            riwayatData.forEach((semester, index) => {
+                const option = document.createElement('option'); option.value = index; option.textContent = semester.nama; semesterSelect.appendChild(option);
+                const details = document.createElement('details');
+                details.innerHTML = `<summary><span>${semester.nama}</span><span>IPS: <strong>${semester.ips}</strong></span></summary><div class="accordion-content"><table><thead><tr><th>Matkul</th><th>SKS</th><th>Nilai Akhir</th><th>Huruf</th></tr></thead><tbody>${semester.matkul.map(mk => `<tr><td>${mk.nama}</td><td>${mk.sks}</td><td>${mk.nilaiAkhirAngka}</td><td>${mk.huruf}</td></tr>`).join('')}</tbody></table><div style="margin-top: 15px; text-align: right; display: flex; gap: 10px; justify-content: flex-end;"><button class="edit-btn button" data-index="${index}">Edit</button><button class="delete-btn button" data-index="${index}" style="background-color: #f44336; color: white;">Hapus</button></div></div>`;
+                riwayatContainer.appendChild(details);
+                totalBobotKumulatif += parseFloat(semester.ips) * semester.totalSks;
+                totalSksKumulatif += semester.totalSks;
+            });
+            const ipk = totalSksKumulatif > 0 ? (totalBobotKumulatif / totalSksKumulatif) : 0;
+            ipkDisplay.textContent = ipk.toFixed(2);
+            riwayatContainer.querySelectorAll('.edit-btn').forEach(btn => { btn.addEventListener('click', (e) => loadSemesterToForm(e, e.target.dataset.index)); });
+            riwayatContainer.querySelectorAll('.delete-btn').forEach(btn => { btn.addEventListener('click', (e) => deleteSemester(parseInt(e.target.dataset.index))); });
+        };
+
+        const loadSemesterToForm = (event, directIndex = null) => {
+            const index = directIndex ?? event.target.value;
+            if (index < 0) { resetForm(); return; }
+            const semester = riwayatData[index];
+            namaSemesterInput.value = semester.nama; editingIndexInput.value = index; matkulContainer.innerHTML = '';
+            if (semester.matkul.length > 0) {
+                semester.matkul.forEach(mk => addMatkulField(mk));
+            } else { // Jika semester tidak punya matkul, tambahkan satu field kosong
+                addMatkulField();
+            }
+            if (directIndex !== null) { semesterSelect.value = index; }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        const deleteSemester = (index) => {
+            if (confirm(`Apakah Anda yakin ingin menghapus semester "${riwayatData[index].nama}"?`)) {
+                riwayatData.splice(index, 1);
+                localStorage.setItem('riwayatIpk', JSON.stringify(riwayatData));
+                renderRiwayat(); resetForm();
+            }
+        };
+
+        init();
+    });
+    </script>
+</body>
+</html>

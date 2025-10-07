@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Standar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --primary-hover: #0056b3;
+            --background-color: #f4f7fc;
+            --card-background: #ffffff;
+            --text-color: #333;
+            --border-color: #dee2e6;
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 450px;
+            width: 100%;
+        }
+
+        .back-link {
+            text-decoration: none;
+            color: var(--primary-color);
+            font-weight: 500;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+
+        .calculator-card {
+            background: var(--card-background);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            padding: 30px;
+        }
+
+        h1 {
+            font-size: 1.6em;
+            margin: 0 0 25px 0;
+            font-weight: 600;
+            color: var(--primary-color);
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+            color: #6c757d;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            font-size: 1em;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: all 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 20%, transparent);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px 18px;
+            font-size: 1.1em;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            font-weight: 500;
+            background-color: var(--primary-color);
+            color: #fff;
+        }
+        
+        button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        .result {
+            margin-top: 25px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: color-mix(in srgb, var(--primary-color) 15%, transparent);
+            border: 1px solid var(--primary-color);
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: 600;
+            color: var(--primary-color);
+            display: none; /* Disembunyikan secara default */
+        }
+        
+        .result.show {
+            display: block; /* Ditampilkan saat ada hasil */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">&larr; Kembali ke Menu</a>
+        
+        <div class="calculator-card">
+            <h1>Kalkulator Standar</h1>
+            <form id="calculator-form">
+                <div class="form-group">
+                    <label for="angka1">Angka Pertama</label>
+                    <input type="number" step="any" name="angka1" id="angka1" required>
+                </div>
+                <div class="form-group">
+                    <label for="operator">Operator</label>
+                    <select name="operator" id="operator">
+                        <option value="+">+</option>
+                        <option value="-">-</option>
+                        <option value="*">*</option>
+                        <option value="/">/</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="angka2">Angka Kedua</label>
+                    <input type="number" step="any" name="angka2" id="angka2" required>
+                </div>
+                <button type="submit" name="hitung">Hitung</button>
+            </form>
+
+            <div id="result-container" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('calculator-form').addEventListener('submit', function(event) {
+            // Mencegah form mengirim request (perilaku default)
+            event.preventDefault();
+
+            const angka1Input = document.getElementById('angka1').value;
+            const angka2Input = document.getElementById('angka2').value;
+            const operator = document.getElementById('operator').value;
+            const resultContainer = document.getElementById('result-container');
+            
+            // Validasi input tidak boleh kosong
+            if (angka1Input.trim() === '' || angka2Input.trim() === '') {
+                resultContainer.textContent = "Error: Input tidak boleh kosong!";
+                resultContainer.classList.add('show');
+                return;
+            }
+
+            const angka1 = parseFloat(angka1Input);
+            const angka2 = parseFloat(angka2Input);
+
+            // Validasi input harus berupa angka
+            if (isNaN(angka1) || isNaN(angka2)) {
+                resultContainer.textContent = "Error: Input harus berupa angka!";
+                resultContainer.classList.add('show');
+                return;
+            }
+
+            let hasil;
+            switch (operator) {
+                case '+':
+                    hasil = angka1 + angka2;
+                    break;
+                case '-':
+                    hasil = angka1 - angka2;
+                    break;
+                case '*':
+                    hasil = angka1 * angka2;
+                    break;
+                case '/':
+                    // Mencegah pembagian dengan nol
+                    if (angka2 !== 0) {
+                        hasil = angka1 / angka2;
+                    } else {
+                        hasil = "Error: Tidak bisa dibagi dengan nol!";
+                    }
+                    break;
+            }
+
+            // Menampilkan hasil
+            if (typeof hasil === 'number') {
+                resultContainer.textContent = 'Hasil: ' + hasil;
+            } else {
+                resultContainer.textContent = hasil; // Menampilkan pesan error
+            }
+            resultContainer.classList.add('show');
+        });
+    </script>
+</body>
+</html>
