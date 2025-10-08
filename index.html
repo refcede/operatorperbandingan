@@ -16,10 +16,20 @@
             --card-bg-color: #ffffff;
             --text-color: #333333;
             --title-color: #0056b3;
+            --subtle-text-color: #6c757d;
             --card-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
             --icon-color: #007bff;
             --math-icon-bg-color: rgba(0, 86, 179, 0.15);
         }
+
+ .header-text {
+            position: absolute; /* Membuat posisi absolut terhadap body */
+            top: 25px;
+            left: 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #0d6efd; /* Warna biru yang sama dengan ikon */
+ }
 
         body, html {
             margin: 0;
@@ -29,18 +39,30 @@
             font-family: 'Poppins', sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
             overflow: hidden;
-            transition: background-color 0.3s ease, color 0.3s ease;
             position: relative;
         }
 
+        .page-wrapper {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
         .container {
             text-align: center;
             z-index: 10;
             position: relative;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
 
         @keyframes fadeInUp {
@@ -123,6 +145,17 @@
             0% { transform: translateY(0) rotate(0deg); opacity: 1; }
             100% { transform: translateY(-120vh) rotate(360deg); opacity: 0; }
         }
+
+        /* --- [BARU] Style untuk Footer --- */
+        footer {
+            flex-shrink: 0;
+            width: 100%;
+            text-align: center;
+            padding-top: 40px;
+            font-size: 0.9em;
+            color: var(--subtle-text-color);
+            z-index: 10;
+        }
     </style>
 </head>
 <body>
@@ -134,23 +167,33 @@
         <span class="math-icon-bg"><i class="fas fa-equals"></i></span>
         <span class="math-icon-bg"><i class="fas fa-percent"></i></span>
     </div>
+    
+    <div class="header-text">
+    KELOMPOK 2 JAVA WEB PROGRAMING
+</div>
 
-    <div class="container">
-        <h1 class="main-title">Pusat Kalkulator</h1>
-        <div class="card-container">
-            <div class="card" onclick="location.href='kalkulator.html'">
-                <div class="card-icon"><i class="fas fa-calculator"></i></div>
-                <div class="card-title">Kalkulator Standar</div>
-            </div>
-            <div class="card" onclick="location.href='kalkulator_ipk.html'">
-                <div class="card-icon"><i class="fas fa-graduation-cap"></i></div>
-                <div class="card-title">Kalkulator IPK</div>
-            </div>
-            <div class="card" onclick="location.href='kalkulator_perbandingan.html'">
-                <div class="card-icon"><i class="fas fa-balance-scale"></i></div>
-                <div class="card-title">Kalkulator Perbandingan</div>
+    <div class="page-wrapper">
+        <div class="container">
+            <h1 class="main-title">Pusat Kalkulator</h1>
+            <div class="card-container">
+                <div class="card" onclick="location.href='kalkulator.html'">
+                    <div class="card-icon"><i class="fas fa-calculator"></i></div>
+                    <div class="card-title">Kalkulator Standar</div>
+                </div>
+                <div class="card" onclick="location.href='kalkulator_ipk.html'">
+                    <div class="card-icon"><i class="fas fa-graduation-cap"></i></div>
+                    <div class="card-title">Kalkulator IPK</div>
+                </div>
+                <div class="card" onclick="location.href='kalkulator_perbandingan.html'">
+                    <div class="card-icon"><i class="fas fa-balance-scale"></i></div>
+                    <div class="card-title">Kalkulator Perbandingan</div>
+                </div>
             </div>
         </div>
+
+        <footer>
+            <p>created by kelompok 2 03SISP007 - Ahmad Rijal Maulidina</p>
+        </footer>
     </div>
 </body>
 </html>
