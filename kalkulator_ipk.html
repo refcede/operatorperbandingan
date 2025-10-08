@@ -17,7 +17,6 @@
             --text-color: #333;
             --subtle-text-color: #6c757d;
             --border-color: #dee2e6;
-            --error-color: #c0392b;
             --shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
             --math-icon-color: rgba(0, 123, 255, 0.1);
             --font-family: 'Poppins', sans-serif;
@@ -115,11 +114,6 @@
             box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 20%, transparent);
         }
 
-        .input-error {
-            border-color: var(--error-color) !important;
-            box-shadow: 0 0 0 3px color-mix(in srgb, var(--error-color) 20%, transparent) !important;
-        }
-
         button, .button {
             padding: 10px 18px; font-size: 0.95em; border-radius: 8px;
             border: none; cursor: pointer; transition: all 0.3s ease;
@@ -195,14 +189,6 @@
         #theme-toggle .fa-moon { transform: translateY(30px) rotate(180deg); opacity: 0; }
         body.dark-mode #theme-toggle .fa-sun { transform: translateY(-30px) rotate(-180deg); opacity: 0; }
         body.dark-mode #theme-toggle .fa-moon { transform: translateY(0) rotate(0deg); opacity: 1; }
-
-        footer {
-            text-align: center;
-            margin-top: 30px;
-            padding: 15px;
-            font-size: 0.9em;
-            color: var(--subtle-text-color);
-        }
     </style>
 </head>
 <body>
@@ -252,10 +238,7 @@
                         <hr style="border-color: var(--border-color); border-style: dashed; margin: 20px 0;">
                         
                         <div id="matkul-container">
-                        </div>
-
-                        <div id="matkul-template" style="display: none;">
-                             <div class="matkul-input-group">
+                            <div class="matkul-input-group" id="matkul-template">
                                 <div>
                                     <div class="form-group"><label>Nama Mata Kuliah</label><input type="text" class="matkul-nama" required></div>
                                     <div class="nilai-inputs">
@@ -290,10 +273,6 @@
             </div>
         </div>
     </div>
-    
-    <footer>
-        <p>created by kelompok 2 03SISP007 - Ahmad Rijal Maulidina</p>
-    </footer>
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -317,7 +296,7 @@
         
         let riwayatData = [];
         let settings = {};
-        let matkulTemplateHTML = '';
+        let matkulTemplateHTML = ''; 
 
         const init = () => {
             loadTheme();
@@ -327,7 +306,8 @@
             
             const matkulTemplateElement = document.getElementById('matkul-template');
             if (matkulTemplateElement) {
-                matkulTemplateHTML = matkulTemplateElement.innerHTML;
+                matkulTemplateHTML = matkulTemplateElement.outerHTML;
+                matkulTemplateElement.remove();
             }
 
             if (matkulContainer.children.length === 0) {
@@ -348,26 +328,15 @@
             addMatkulBtn.addEventListener('click', () => addMatkulField());
             formIpk.addEventListener('submit', handleFormSubmit);
             semesterSelect.addEventListener('change', loadSemesterToForm);
-
-            formIpk.addEventListener('input', (e) => {
-                if (e.target.classList.contains('input-error')) {
-                    e.target.classList.remove('input-error');
-                }
-            });
         };
 
-        // --- [FUNGSI DIPERBARUI] ---
         const addMatkulField = (matkulData = null) => {
             if (!matkulTemplateHTML) return;
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = matkulTemplateHTML.trim();
-            const newField = tempDiv.firstElementChild; // Lebih aman dari 'firstChild'
+            const newField = tempDiv.firstChild;
 
-            if (!newField) {
-                console.error("Gagal membuat baris mata kuliah baru dari template.");
-                return;
-            }
-
+            newField.removeAttribute('id');
             if(matkulData) {
                 newField.querySelector('.matkul-nama').value = matkulData.nama;
                 newField.querySelector('.matkul-sks').value = matkulData.sks;
@@ -376,20 +345,16 @@
                 newField.querySelector('.matkul-uas').value = matkulData.nilai.uas;
                 newField.querySelector('.matkul-hadir').value = matkulData.nilai.hadir;
             }
-            
-            const removeBtn = document.createElement('button');
-            removeBtn.type = 'button';
-            removeBtn.innerHTML = '<i class="fas fa-trash"></i>';
-            removeBtn.className = 'remove-matkul-btn';
-            removeBtn.title = 'Hapus Mata Kuliah';
-            removeBtn.onclick = () => {
-                if (matkulContainer.children.length > 1) {
-                    newField.remove();
-                } else {
-                    alert('Setidaknya harus ada satu mata kuliah.');
-                }
-            };
-            newField.appendChild(removeBtn);
+
+            if (matkulContainer.children.length > 0) {
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                removeBtn.className = 'remove-matkul-btn';
+                removeBtn.title = 'Hapus Mata Kuliah';
+                removeBtn.onclick = () => newField.remove();
+                newField.appendChild(removeBtn);
+            }
             matkulContainer.appendChild(newField);
         };
         
@@ -406,7 +371,6 @@
         };
 
         const createMathBackground = () => {
-            if(backgroundContainer.children.length > 0) return;
             const icons = ['+', '-', '×', '÷', '=', '√', 'π', 'Σ', '∫', 'ƒ', '%'];
             const iconCount = 30;
             for (let i = 0; i < iconCount; i++) {
@@ -454,79 +418,34 @@
         
         const handleFormSubmit = (e) => {
             e.preventDefault();
-            formIpk.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
-            let formIsValid = true;
-
             const semesterNama = namaSemesterInput.value.trim();
-            if (!semesterNama) {
-                namaSemesterInput.classList.add('input-error');
-                formIsValid = false;
-            }
-            
+            if (!semesterNama) { alert('Nama semester tidak boleh kosong.'); return; }
             const matkulElements = matkulContainer.querySelectorAll('.matkul-input-group');
             const semesterMatkul = [];
-            let totalSks = 0;
-            let totalBobotNilai = 0;
-
+            let totalSks = 0; let totalBobotNilai = 0;
             matkulElements.forEach(el => {
-                const allInputs = el.querySelectorAll('input');
-                let rowIsValid = true;
-
-                allInputs.forEach(input => {
-                    if (input.value.trim() === '') {
-                        input.classList.add('input-error');
-                        formIsValid = false;
-                        rowIsValid = false;
-                    }
-                });
-
-                if (!rowIsValid) return;
-
                 const nama = el.querySelector('.matkul-nama').value;
                 const sks = parseInt(el.querySelector('.matkul-sks').value);
                 const tugas = parseFloat(el.querySelector('.matkul-tugas').value);
                 const uts = parseFloat(el.querySelector('.matkul-uts').value);
                 const uas = parseFloat(el.querySelector('.matkul-uas').value);
                 const hadir = parseInt(el.querySelector('.matkul-hadir').value);
-
-                if (isNaN(sks) || isNaN(tugas) || isNaN(uts) || isNaN(uas) || isNaN(hadir)) {
-                     el.querySelectorAll('input').forEach(input => input.classList.add('input-error'));
-                     formIsValid = false;
-                     return;
-                }
-
+                if (!nama || isNaN(sks) || isNaN(tugas) || isNaN(uts) || isNaN(uas) || isNaN(hadir)) { return; }
                 const nilaiHadir = (hadir / settings.totalPertemuan) * 100;
-                const nilaiAkhirAngka = (tugas * settings.tugas / 100) + (uts * settings.uts / 100) + (uas * settings.uas / 100) + (nilaiHadir * settings.hadir / 100);
+                const nilaiAkhirAngka = (tugas * settings.tugas/100) + (uts * settings.uts/100) + (uas * settings.uas/100) + (nilaiHadir * settings.hadir/100);
                 const { huruf, bobot } = convertNilaiToBobot(nilaiAkhirAngka);
                 semesterMatkul.push({ nama, sks, nilai: { tugas, uts, uas, hadir }, nilaiAkhirAngka: nilaiAkhirAngka.toFixed(2), huruf, bobot });
-                totalSks += sks;
-                totalBobotNilai += sks * bobot;
+                totalSks += sks; totalBobotNilai += sks * bobot;
             });
-
-            if (!formIsValid) {
-                alert('Harap perbaiki isian yang ditandai merah sebelum menyimpan.');
-                return;
-            }
-            
-            if (semesterMatkul.length === 0) {
-                alert('Silakan isi data mata kuliah terlebih dahulu.');
-                return;
-            }
-
+            if (semesterMatkul.length === 0) { alert('Silakan isi data mata kuliah terlebih dahulu.'); return; }
             const ips = totalSks > 0 ? (totalBobotNilai / totalSks) : 0;
             const semesterObj = { nama: semesterNama, matkul: semesterMatkul, ips: ips.toFixed(2), totalSks: totalSks };
             const editingIndex = parseInt(editingIndexInput.value);
-            if (editingIndex > -1) {
-                riwayatData[editingIndex] = semesterObj;
-            } else {
-                riwayatData.push(semesterObj);
-            }
+            if (editingIndex > -1) { riwayatData[editingIndex] = semesterObj; } else { riwayatData.push(semesterObj); }
             localStorage.setItem('riwayatIpk', JSON.stringify(riwayatData));
-            renderRiwayat();
-            resetForm();
+            renderRiwayat(); resetForm();
             alert(`Semester ${semesterNama} berhasil disimpan dengan IPS ${ips.toFixed(2)}`);
         };
-
 
         const convertNilaiToBobot = (nilai) => {
             if (nilai >= 85) return { huruf: 'A', bobot: 4.0 }; if (nilai >= 80) return { huruf: 'A-', bobot: 3.7 };
@@ -572,11 +491,7 @@
             if (index < 0) { resetForm(); return; }
             const semester = riwayatData[index];
             namaSemesterInput.value = semester.nama; editingIndexInput.value = index; matkulContainer.innerHTML = '';
-            if (semester.matkul.length > 0) {
-                semester.matkul.forEach(mk => addMatkulField(mk));
-            } else {
-                addMatkulField();
-            }
+            semester.matkul.forEach(mk => addMatkulField(mk));
             if (directIndex !== null) { semesterSelect.value = index; }
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
